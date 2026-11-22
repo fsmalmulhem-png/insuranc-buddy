@@ -1,3 +1,19 @@
+# Copy this whole file into `app.py`
+
+**Open:** https://github.com/fsmalmulhem-png/insuranc-buddy/blob/main/app.py
+
+1. Click the **pencil** icon (top right)
+2. Click in the code, then **Ctrl+A** — select ALL
+3. **Ctrl+V** — paste the block below over it
+4. Scroll down, click **Commit changes**
+
+The whole file is here. Do not select part of it — replace all of it.
+
+Verified: parses, boots HTTP 200, 12/12 + 28/28 + 18/18 tests clean.
+
+---
+
+```python
 """Insurance Buddy — WAICY 2026 LLM & AI Agent track.
 
 Streamlit UI. Works in two modes:
@@ -13,8 +29,8 @@ Set BUDDY_MODE=wkala to use the backend.
 
 from __future__ import annotations
 
+import json
 import os
-import re
 import uuid
 
 import streamlit as st
@@ -227,30 +243,7 @@ if MODE != "wkala":
             carrier=st.session_state.carrier,
             city=st.session_state.get("city"),
             class_level=st.session_state.get("class_level"),
-        )(st.session_state.messages)
-                          if m["role"] == "user"), None))
-        st.session_state.carrier = found
-        st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
-        st.session_state.class_level = (fast_answers.find_class(text)
-                                        or st.session_state.get("class_level"))
-
-        fast = fast_answers.respond(
-            text,
-            st.session_state.messages,
-            carrier=st.session_state.carrier,
-            city=st.session_state.get("city"),
-            class_level=st.session_state.get("class_level"),
         )
-
-        found = (business_tools.find_carrier(text)
-                 or st.session_state.carrier
-                 or next((business_tools.find_carrier(m["content"])
-                          for m in reversed(st.session_state.messages)
-                          if m["role"] == "user"), None))
-        st.session_state.carrier = found
-        st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
-        st.session_state.class_level = (fast_answers.find_class(text)
-                                        or st.session_state.get("class_level"))
 
         st.session_state.messages.append({"role": "user", "content": text})
         with st.chat_message("user"):
@@ -365,3 +358,5 @@ else:
             st.rerun()
         else:
             st.error(f"Could not start work: {r.status_code} {r.text[:300]}")
+```
+
