@@ -1,0 +1,13 @@
+# Rafha — Gulf General (GGCI) provider network
+
+From GGCI's SME network PDF dated **14 September 2025** (see `../sources/index.md`).
+2 providers listed · **0 still within accreditation validity** as of 11 Nov 2026.
+
+> **Read the Validity column.** GGCI's file is from Sept 2025 and almost every CCHI
+> accreditation in it has lapsed. A row marked `expired` was listed then — it is not
+> evidence of cover today. Confirm with GGCI before travelling.
+
+| Provider | CCHI No | Class mark | Accredited to | Validity | Telephone |
+|---|---|---|---|---|---|
+| BALSAM AL RAYAN MEDICAL COMPLEX -RAFHAA | 19470 | `•` | 28-Jan-2026 | expired | — |
+| RAFHA MEDICAL CENTER - RAFHA | 17703 | `•` | 30-May-2026 | expired | 014 676 6655 |

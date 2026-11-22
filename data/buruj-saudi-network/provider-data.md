@@ -1,0 +1,27 @@
+# Buruj — provider data at a glance
+
+## How many providers
+
+N/A — Buruj merged into **MEDGULF** on 26 Oct 2025.
+
+## Where the network data lives
+
+**MEDGULF**, via **TCS** on **920014001** (24/7).
+
+## Why it is not in this skill
+
+Buruj no longer exists as an independent insurer; its site does not respond. Any pre-merger list would be stale by definition.
+
+## Can this skill name a hospital?
+
+**No.**
+
+---
+
+This file exists so every skill in the set has the same shape. The four skills with full
+hospital tables — **GIG**, **Amana**, **Bupa** and **Gulf General** — carry city files under
+`network/`. The rest cannot, because the underlying data was never published, is member-locked,
+or is out of date.
+
+Absence here is a finding, not a gap in the work. See `network/README.md` and
+`sources/index.md` for the evidence behind each statement.
