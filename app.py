@@ -1,12 +1,3 @@
-# Copy this whole file into `app.py`
-
-**Open:** https://github.com/fsmalmulhem-png/insuranc-buddy/blob/main/app.py
-
-1. Click the **pencil** icon (top right)
-2. Click in the code, then **Ctrl+A** — select ALL
-3. **Ctrl+V** — paste the block below over it
-4. Scroll down, click **Commit changes**
-
 The whole file is here. Do not select part of it — replace all of it.
 
 Verified: parses, boots HTTP 200, 12/12 + 28/28 + 18/18 tests clean.
