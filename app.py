@@ -217,12 +217,12 @@ if MODE != "wkala":
             class_level=st.session_state.get("class_level"),
         )
 
-        if not st.session_state.carrier:
-            found = (business_tools.find_carrier(text)
-                     or next((business_tools.find_carrier(m["content"])
-                              for m in reversed(st.session_state.messages)
-                              if m["role"] == "user"), None))
-            st.session_state.carrier = found
+        found = (business_tools.find_carrier(text)
+                 or st.session_state.carrier
+                 or next((business_tools.find_carrier(m["content"])
+                          for m in reversed(st.session_state.messages)
+                          if m["role"] == "user"), None))
+        st.session_state.carrier = found
         st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
         st.session_state.class_level = (fast_answers.find_class(text)
                                         or st.session_state.get("class_level"))
