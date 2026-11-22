@@ -1,0 +1,7 @@
+wkala @ https://wkala.okal.io/downloads/wkala-0.1.0-py3-none-any.whl
+fastapi>=0.115
+uvicorn>=0.30
+httpx>=0.27
+pydantic>=2.7
+streamlit>=1.36
+openai>=1.40

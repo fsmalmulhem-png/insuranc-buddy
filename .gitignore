@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.git/
+*.zip
+.streamlit/secrets.toml
+data/store.json
+data/store.json.tmp
