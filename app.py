@@ -342,5 +342,3 @@ else:
             st.rerun()
         else:
             st.error(f"Could not start work: {r.status_code} {r.text[:300]}")
-
-
