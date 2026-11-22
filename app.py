@@ -209,6 +209,18 @@ if MODE != "wkala":
     if text := st.chat_input("Type your message…"):
         # The table path answers in single-digit milliseconds. The model is
         # only reached when the published data genuinely cannot settle it.
+   # Read the facts out of this message FIRST, so the answer below uses
+        # them. Detecting after the call made every answer one message late.
+        found = (business_tools.find_carrier(text)
+                 or st.session_state.carrier
+                 or next((business_tools.find_carrier(m["content"])
+                          for m in reversed(st.session_state.messages)
+                          if m["role"] == "user"), None))
+        st.session_state.carrier = found
+        st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
+        st.session_state.class_level = (fast_answers.find_class(text)
+                                        or st.session_state.get("class_level"))
+
         fast = fast_answers.respond(
             text,
             st.session_state.messages,
