@@ -42,7 +42,12 @@ EMERGENCY = [
     "breathing", "bleeding", "unconscious", "fainted", "seizure",
     "stroke", "pregnant", "accident", "emergency", "urgent",
 ]
+UNWELL = [
+    "sick", "ill", "unwell", "not feeling well", "hurts", "pain",
+    "fever", "tired", "dizzy", "nausea",
+]
 
+SYMPATHY = "I am sorry you are feeling unwell."
 CLINIC_WORDS = ["hospital", "clinic", "centre", "center", "polyclinic"]
 
 DISCLAIMER = "Coverage changes; confirm before you travel."
@@ -208,7 +213,10 @@ def respond(message: str, history: list[dict] | None = None,
 
     # Missing a fact: ask exactly one, in the fewest words.
     if not carrier:
-        return Reply("ask", f"{lead}Which insurer is on your card?")
+      warm = ""
+        if not lead and any(w in text.lower() for w in UNWELL):
+            warm = SYMPATHY + " "
+        return Reply("ask", f"{lead}{warm}Which insurer is on your card?")
     if not class_level:
         return Reply("ask", "What class is printed on it — A or B?")
     if not city:
