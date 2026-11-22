@@ -213,7 +213,7 @@ def respond(message: str, history: list[dict] | None = None,
 
     # Missing a fact: ask exactly one, in the fewest words.
     if not carrier:
-      warm = ""
+        warm = ""
         if not lead and any(w in text.lower() for w in UNWELL):
             warm = SYMPATHY + " "
         return Reply("ask", f"{lead}{warm}Which insurer is on your card?")
