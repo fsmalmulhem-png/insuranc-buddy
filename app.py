@@ -341,6 +341,6 @@ else:
         if r.status_code == 200:
             st.rerun()
         else:
-         st.error(f"Could not start work: {r.status_code} {r.text[:300]}")
+            st.error(f"Could not start work: {r.status_code} {r.text[:300]}")
 
 
