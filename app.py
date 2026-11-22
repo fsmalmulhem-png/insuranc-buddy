@@ -1,10 +1,3 @@
-The whole file is here. Do not select part of it — replace all of it.
-
-Verified: parses, boots HTTP 200, 12/12 + 28/28 + 18/18 tests clean.
-
----
-
-```python
 """Insurance Buddy — WAICY 2026 LLM & AI Agent track.
 
 Streamlit UI. Works in two modes:
