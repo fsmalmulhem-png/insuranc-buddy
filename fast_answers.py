@@ -69,18 +69,16 @@ def find_city(text: str) -> str | None:
 
 def find_class(text: str) -> str | None:
     t = text.upper()
-    m = re.search(r"\bCLASS\s*([A-C])\b", t)
+    m = re.search(r"\bCLASS\s*([A-C])\s*(\+)?", t)
     if m:
-        return m.group(1)
+        return m.group(1) + (m.group(2) or "")
     m = re.search(r"\b(VVIP|VIP)\b", t)
     if m:
         return m.group(1)
-    if re.search(r"\bCLASS\s+A\b", t):
-        return "A"
-    if re.search(r"\bCLASS\s+B\b", t):
-        return "B"
+    m = re.search(r"\b([A-C])(\+)\b", t)
+    if m:
+        return m.group(1) + m.group(2)
     return None
-
 
 def is_emergency(text: str) -> bool:
     t = text.lower()
