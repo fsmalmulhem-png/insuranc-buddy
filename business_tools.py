@@ -153,7 +153,8 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
 
     matched = [r for r in rows if _row_allows_class(r, cls)]
     matched.sort(key=_place_rank)
-    matched = matched[:limit]
+    useful = [r for r in matched if _place_rank(r) <= 1]
+    matched = (useful or matched)[:limit]
     if not matched:
         return HospitalSearch(
             carrier=carrier, city=city, class_level=class_level, may_name=False,
