@@ -73,7 +73,7 @@ def find_city(text: str) -> str | None:
 
 
 def find_class(text: str) -> str | None:
-    t = text.upper()
+  t = text.upper().strip()
     m = re.search(r"\bCLASS\s*([A-C])\s*(\+)?", t)
     if m:
         return m.group(1) + (m.group(2) or "")
@@ -83,12 +83,13 @@ def find_class(text: str) -> str | None:
     m = re.search(r"\b([A-C])(\+)\b", t)
     if m:
         return m.group(1) + m.group(2)
+    # A one-word answer to "What class is printed on it - A or B?".
+    if re.fullmatch(r"[A-C]\+?", t.rstrip(".!")):
+        return t.rstrip(".!")
     return None
-
-def is_emergency(text: str) -> bool:
-    t = text.lower()
-    return any(w in t for w in EMERGENCY)
-
+ # A one-word answer to "What class is printed on it - A or B?".
+    if re.fullmatch(r"[A-C]\+?", t.rstrip(".!")):
+        return t.rstrip(".!")
 
 def wants_emergency_care(text: str) -> bool:
     t = text.lower()
