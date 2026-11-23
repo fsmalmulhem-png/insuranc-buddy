@@ -87,6 +87,9 @@ def find_class(text: str) -> str | None:
     if re.fullmatch(r"[A-C]\+?", t.rstrip(".!")):
         return t.rstrip(".!")
     return None
+def is_emergency(text: str) -> bool:
+    t = text.lower()
+    return any(w in t for w in EMERGENCY)
 
 def wants_emergency_care(text: str) -> bool:
     t = text.lower()
