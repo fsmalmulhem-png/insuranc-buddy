@@ -13,8 +13,8 @@ Set BUDDY_MODE=wkala to use the backend.
 
 from __future__ import annotations
 
+import json
 import os
-import re
 import uuid
 
 import streamlit as st
@@ -227,30 +227,7 @@ if MODE != "wkala":
             carrier=st.session_state.carrier,
             city=st.session_state.get("city"),
             class_level=st.session_state.get("class_level"),
-        )(st.session_state.messages)
-                          if m["role"] == "user"), None))
-        st.session_state.carrier = found
-        st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
-        st.session_state.class_level = (fast_answers.find_class(text)
-                                        or st.session_state.get("class_level"))
-
-        fast = fast_answers.respond(
-            text,
-            st.session_state.messages,
-            carrier=st.session_state.carrier,
-            city=st.session_state.get("city"),
-            class_level=st.session_state.get("class_level"),
         )
-
-        found = (business_tools.find_carrier(text)
-                 or st.session_state.carrier
-                 or next((business_tools.find_carrier(m["content"])
-                          for m in reversed(st.session_state.messages)
-                          if m["role"] == "user"), None))
-        st.session_state.carrier = found
-        st.session_state.city = fast_answers.find_city(text) or st.session_state.get("city")
-        st.session_state.class_level = (fast_answers.find_class(text)
-                                        or st.session_state.get("class_level"))
 
         st.session_state.messages.append({"role": "user", "content": text})
         with st.chat_message("user"):

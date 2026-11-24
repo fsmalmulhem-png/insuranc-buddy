@@ -76,6 +76,7 @@ class Hospital(BaseModel):
     network: str
     phone: str | None
     address: str | None
+    provider_type: str = ""
 
 
 class HospitalSearch(BaseModel):
@@ -150,7 +151,10 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
             hospitals=[],
         )
 
-    matched = [r for r in rows if _row_allows_class(r, cls)][:limit]
+    matched = [r for r in rows if _row_allows_class(r, cls)]
+    matched.sort(key=_place_rank)
+    useful = [r for r in matched if _place_rank(r) <= 1]
+    matched = (useful or matched)[:limit]
     if not matched:
         return HospitalSearch(
             carrier=carrier, city=city, class_level=class_level, may_name=False,
@@ -192,13 +196,32 @@ def _parse_table(text: str) -> list[Hospital]:
                    or "").replace("*", "").strip()
         phone = (row.get("telephone") or "").strip()
         addr = (row.get("address") or "").strip()
+        ptype = (row.get("type") or "").strip()
         out.append(Hospital(
             name=name,
             network=network,
-            phone=None if phone in ("", "—", "-") else phone,
+            phone=None if phone in ("", "—", "-", "0", "00", "N/A") else phone,
             address=None if addr in ("", "—", "-") else addr,
+            provider_type=ptype,
         ))
     return out
+
+
+def _place_rank(row: Hospital) -> int:
+    """Where a person should be sent first.
+
+    A table row may be a hospital, a medical centre, or an optician. Someone
+    asking for care must not be handed three optical shops, so hospitals sort
+    first and optical, dental and hearing providers sort last.
+    """
+    t = (row.provider_type or "").lower()
+    if "hospital" in t:
+        return 0
+    if "medical" in t or "clinic" in t:
+        return 1
+    if any(w in t for w in ("optical", "dental", "hearing", "pharmac")):
+        return 9
+    return 2
 
 
 def _row_allows_class(row: Hospital, cls: str) -> bool:
