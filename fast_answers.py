@@ -74,17 +74,17 @@ def find_city(text: str) -> str | None:
 
 def find_class(text: str) -> str | None:
     t = text.upper().strip()
-    m = re.search(r"\bCLASS\s*([A-C])\s*(\+)?", t)
+    m = re.search(r"\bCLASS\s*([A-E])\s*(\+)?", t)
     if m:
         return m.group(1) + (m.group(2) or "")
     m = re.search(r"\b(VVIP|VIP)\b", t)
     if m:
         return m.group(1)
-    m = re.search(r"\b([A-C])(\+)\b", t)
+    m = re.search(r"\b([A-E])(\+)\b", t)
     if m:
         return m.group(1) + m.group(2)
     # A one-word answer to "What class is printed on it - A or B?".
-    if re.fullmatch(r"[A-C]\+?", t.rstrip(".!")):
+    if re.fullmatch(r"[A-E]\+?", t.rstrip(".!")):
         return t.rstrip(".!")
     return None
 def is_emergency(text: str) -> bool:
@@ -130,11 +130,15 @@ def _label(carrier: str) -> str:
 
 
 def _fmt(h) -> str:
+    """One provider per line, short enough that four fit inside the limit.
+
+    A row may name nine tiers; printing all of them triples the length of the
+    answer and pushes it past the 70-word cap, so only the fact that the
+    provider is in the network is shown.
+    """
     bits = [h.name]
     if h.phone:
         bits.append(h.phone)
-    if h.network:
-        bits.append(f"{h.network} network")
     return " — ".join(bits)
 
 
