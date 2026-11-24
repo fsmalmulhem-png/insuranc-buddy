@@ -1,3 +1,4 @@
+```
 """Wkala business tools for Insurance Buddy.
 
 Reads the carrier network files. Four carriers publish real per-city provider
@@ -128,8 +129,7 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
     """
     carrier = find_carrier(carrier_text)
     cls = (class_level or "").strip().upper().replace("CLASS", "").strip()
-    f = _table_file(carrier, city)
-    if f is None:
+
     if not carrier:
         return HospitalSearch(
             carrier=None, city=city, class_level=class_level, may_name=False,
@@ -145,8 +145,8 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
             hospitals=[],
         )
 
-    f = _network_dir(carrier) / f"{slug(city)}.md"
-    if not f.exists():
+    f = _table_file(carrier, city)
+    if f is None:
         return HospitalSearch(
             carrier=carrier, city=city, class_level=class_level, may_name=False,
             reason=(f"This insurer publishes no table for {city}, so no hospital may be named."),
@@ -274,3 +274,6 @@ def carrier_summary(carrier_text: str) -> dict:
                  if cities else
                  "This insurer publishes no provider list. No hospital may be named."),
     }
+
+```
+
