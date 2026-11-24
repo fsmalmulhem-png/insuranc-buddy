@@ -1,4 +1,3 @@
-```
 """Wkala business tools for Insurance Buddy.
 
 Reads the carrier network files. Four carriers publish real per-city provider
@@ -274,6 +273,3 @@ def carrier_summary(carrier_text: str) -> dict:
                  if cities else
                  "This insurer publishes no provider list. No hospital may be named."),
     }
-
-```
-
