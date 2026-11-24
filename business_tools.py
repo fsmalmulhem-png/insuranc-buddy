@@ -94,10 +94,26 @@ def _network_dir(carrier: str) -> Path:
 
 @lru_cache(maxsize=64)
 def _cities_cached(carrier: str) -> tuple[str, ...]:
-    d = _network_dir(carrier)
-    if not d.is_dir():
-        return ()
-    return tuple(sorted(p.stem for p in d.glob("*.md") if p.stem != "README"))
+    names: set[str] = set()
+    for sub in ("merged", "classes", "network"):
+        d = DATA / carrier / sub
+        if d.is_dir():
+            names |= {p.stem for p in d.glob("*.md") if p.stem != "README"}
+    return tuple(sorted(names))
+
+
+def _table_file(carrier: str, city: str) -> Path | None:
+    """The most authoritative table for a city.
+
+    `merged/` states every accepted class, then `classes/`, then the older
+    one-tier-per-row `network/` files.
+    """
+    name = f"{slug(city)}.md"
+    for sub in ("merged", "classes", "network"):
+        f = DATA / carrier / sub / name
+        if f.exists():
+            return f
+    return None
 
 
 def published_cities(carrier: str) -> list[str]:
@@ -112,7 +128,8 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
     """
     carrier = find_carrier(carrier_text)
     cls = (class_level or "").strip().upper().replace("CLASS", "").strip()
-
+    f = _table_file(carrier, city)
+    if f is None:
     if not carrier:
         return HospitalSearch(
             carrier=None, city=city, class_level=class_level, may_name=False,
