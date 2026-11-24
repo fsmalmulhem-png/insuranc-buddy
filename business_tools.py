@@ -152,7 +152,7 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
             hospitals=[],
         )
 
-    if cls not in {"A", "A+", "B", "B+", "C", "C+", "VIP", "VVIP"}:
+    if cls not in {"A", "A+", "B", "B+", "C", "C+", "D", "E", "VIP", "VVIP"}:
         return HospitalSearch(
             carrier=carrier, city=city, class_level=class_level, may_name=False,
             reason="The class on the card is unknown, so no hospital may be named.",
