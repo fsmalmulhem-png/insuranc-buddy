@@ -115,8 +115,8 @@ def build_client(provider: str, typed: str | None = None):
         )
     spec = PROVIDERS[provider]
     return OpenAI(
-        [REDACTED CREDENTIAL]
-        base_url=os.environ.get("LLM_BASE_URL") or spec["base_url"],
+       [REDACTED CREDENTIAL]
+      base_url=os.environ.get("LLM_BASE_URL") or spec["base_url"],
         timeout=30.0,
         max_retries=1,
     )
