@@ -109,17 +109,15 @@ def build_client(provider: str, typed: str | None = None):
 
     key, source = resolve_key(provider, typed)
     if not key:
-        raise RuntimeError(
-            f"No {PROVIDERS[provider]['label']} API key. Set "
-            f"{PROVIDERS[provider]['key_env']} in the deployment."
-        )
+        raise RuntimeError("No API key configured for " + provider)
+
     spec = PROVIDERS[provider]
-    return OpenAI(
-       [REDACTED CREDENTIAL]
-       base_url=os.environ.get("LLM_BASE_URL") or spec["base_url"],
-        timeout=30.0,
-        max_retries=1,
-    )
+    params = {}
+    params["api_key"] = key
+    params["base_url"] = os.environ.get("LLM_BASE_URL") or spec["base_url"]
+    params["timeout"] = 30.0
+    params["max_retries"] = 1
+    return OpenAI(**params)
 
 
 def model_name(provider: str) -> str:
