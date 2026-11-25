@@ -1,8 +1,8 @@
 """Wkala business tools for Insurance Buddy.
 
-Reads the carrier network files. Four carriers publish real per-city provider
-tables (Amana, Bupa, GGI, GIG); the rest publish no list and must never be
-answered with a hospital name.
+Reads the carrier network files. Seven carriers publish real per-city provider
+tables (GIG, Bupa, Amana, MedGulf, Walaa, Gulf General, Tawuniya); the rest
+publish no list and must never be answered with a hospital name.
 
 The tool subject and authorization come from the signed invocation, never from
 model output.
@@ -54,6 +54,7 @@ CARRIERS = {
     "uca": "uca-united-cooperative-saudi-network",
     "united cooperative": "uca-united-cooperative-saudi-network",
     "walaa": "walaa-saudi-network",
+    "walla": "walaa-saudi-network",
     "wataniya": "wataniya-saudi-network",
 }
 
@@ -88,10 +89,6 @@ class HospitalSearch(BaseModel):
     hospitals: list[Hospital]
 
 
-def _network_dir(carrier: str) -> Path:
-    return DATA / carrier / "network"
-
-
 @lru_cache(maxsize=64)
 def _cities_cached(carrier: str) -> tuple[str, ...]:
     names: set[str] = set()
@@ -107,10 +104,27 @@ def _table_file(carrier: str, city: str) -> Path | None:
 
     `merged/` states every accepted class, then `classes/`, then the older
     one-tier-per-row `network/` files.
+
+    The city name is resolved through city.resolve_city(), so "Khobar",
+    "الخبر" and "Al Khubar" all reach al-khobar.md. An unresolved name
+    returns None and the caller refuses — it never substitutes another city.
     """
     name = f"{slug(city)}.md"
     for sub in ("merged", "classes", "network"):
         f = DATA / carrier / sub / name
+        if f.exists():
+            return f
+
+    try:
+        import city as _city
+    except Exception:
+        return None
+
+    resolved = _city.resolve_city(city, published_cities(carrier))
+    if not resolved:
+        return None
+    for sub in ("merged", "classes", "network"):
+        f = DATA / carrier / sub / f"{resolved}.md"
         if f.exists():
             return f
     return None
@@ -120,7 +134,8 @@ def published_cities(carrier: str) -> list[str]:
     return list(_cities_cached(find_carrier(carrier) or carrier))
 
 
-def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int = 4) -> HospitalSearch:
+def search_hospitals(carrier_text: str, city: str, class_level: str,
+                     limit: int = 4) -> HospitalSearch:
     """Look for hospitals in the carrier's published city table.
 
     `may_name` is False whenever this insurer has no published table for the
@@ -148,7 +163,8 @@ def search_hospitals(carrier_text: str, city: str, class_level: str, limit: int 
     if f is None:
         return HospitalSearch(
             carrier=carrier, city=city, class_level=class_level, may_name=False,
-            reason=(f"This insurer publishes no table for {city}, so no hospital may be named."),
+            reason=(f"This insurer publishes no table for {city}, so no hospital "
+                    "may be named."),
             hospitals=[],
         )
 
@@ -244,8 +260,8 @@ def _row_allows_class(row: Hospital, cls: str) -> bool:
     """Does this provider row cover the wanted class or tier?
 
     A row is only usable when its own tier text names the class. Tier systems
-    that never map to a card class (Bupa's NW7+/NW6/NW5, for example) are not
-    guessed at: an unmatched row means the answer is 'I cannot confirm'.
+    that never map to a card class are not guessed at: an unmatched row means
+    the answer is 'I cannot confirm'.
     """
     net = row.network.upper().strip()
     if not net:
