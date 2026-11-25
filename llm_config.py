@@ -1,8 +1,7 @@
 """LLM key and client handling.
 
 The key is read in this order:
-  1. what the user typed into the sidebar this session (only if there is no
-     server-side key — a deployment sets one and the field never appears)
+  1. what the user typed into the sidebar this session
   2. Streamlit secrets  (st.secrets["OPENAI_API_KEY"])
   3. environment variable OPENAI_API_KEY
 
@@ -30,7 +29,7 @@ PROVIDERS = {
     },
     "openai": {
         "label": "OpenAI",
-        "base_url": None,  # library default
+        "base_url": None,
         "model": "gpt-4o-mini",
         "key_env": "OPENAI_API_KEY",
         "key_prefix": "sk-",
@@ -38,8 +37,6 @@ PROVIDERS = {
     },
 }
 
-# The provider can be pinned from the environment, so a deployment needs no
-# sidebar at all. LLM_PROVIDER=openai + OPENAI_API_KEY is enough.
 _ENV_PROVIDER = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
 DEFAULT_PROVIDER = _ENV_PROVIDER if _ENV_PROVIDER in PROVIDERS else "deepseek"
 
@@ -47,14 +44,13 @@ DEFAULT_PROVIDER = _ENV_PROVIDER if _ENV_PROVIDER in PROVIDERS else "deepseek"
 @dataclass
 class KeyStatus:
     present: bool
-    source: str          # typed | secrets | env | none
+    source: str
     provider: str
     model: str
-    preview: str         # last 4 chars only, or ""
+    preview: str
 
 
 def _from_secrets(env_name: str) -> str | None:
-    """Read from Streamlit secrets without exploding when there is no file."""
     try:
         import streamlit as st
 
@@ -67,7 +63,6 @@ def _from_secrets(env_name: str) -> str | None:
 
 
 def resolve_key(provider: str, typed: str | None) -> tuple[str | None, str]:
-    """Return (key, source). Source is for display only — never the key."""
     if typed and typed.strip():
         return typed.strip(), "typed"
     env_name = PROVIDERS[provider]["key_env"]
@@ -81,12 +76,8 @@ def resolve_key(provider: str, typed: str | None) -> tuple[str | None, str]:
 
 
 def server_key_present() -> bool:
-    """True when the deployment already has a usable key.
-
-    The UI uses this to decide whether to ask the visitor for one at all.
-    """
-    provider = DEFAULT_PROVIDER
-    key, _ = resolve_key(provider, None)
+    """True when the deployment already has a usable key."""
+    key, _ = resolve_key(DEFAULT_PROVIDER, None)
     return bool(key)
 
 
@@ -94,15 +85,12 @@ def status(provider: str, typed: str | None = None) -> KeyStatus:
     key, source = resolve_key(provider, typed)
     spec = PROVIDERS[provider]
     model = os.environ.get("LLM_MODEL") or spec["model"]
-    preview = f"…{key[-4:]}" if key and len(key) >= 4 else ""
-    return KeyStatus(
-        present=bool(key), source=source, provider=provider,
-        model=model, preview=preview,
-    )
+    preview = ("…" + key[-4:]) if key and len(key) >= 4 else ""
+    return KeyStatus(present=bool(key), source=source, provider=provider,
+                     model=model, preview=preview)
 
 
 def looks_valid(provider: str, key: str) -> tuple[bool, str]:
-    """Cheap local check. Real validity is only proven by a live call."""
     spec = PROVIDERS[provider]
     key = (key or "").strip()
     if not key:
@@ -117,14 +105,13 @@ def looks_valid(provider: str, key: str) -> tuple[bool, str]:
 
 
 def build_client(provider: str, typed: str | None = None):
-    """Return an OpenAI-compatible client, or raise with a readable message."""
     from openai import OpenAI
 
     key, source = resolve_key(provider, typed)
     if not key:
         raise RuntimeError(
-            f"No {PROVIDERS[provider]['label']} API key. Paste one in the sidebar, "
-            f"or set {PROVIDERS[provider]['key_env']}."
+            f"No {PROVIDERS[provider]['label']} API key. Set "
+            f"{PROVIDERS[provider]['key_env']} in the deployment."
         )
     spec = PROVIDERS[provider]
     return OpenAI(
@@ -140,10 +127,6 @@ def model_name(provider: str) -> str:
 
 
 def check_live(provider: str, typed: str | None = None) -> tuple[bool, str]:
-    """One tiny real call. Proves the key, the endpoint and the model name.
-
-    Returns (ok, message). The message never contains the key.
-    """
     try:
         client = build_client(provider, typed)
     except RuntimeError as e:
@@ -158,10 +141,9 @@ def check_live(provider: str, typed: str | None = None) -> tuple[bool, str]:
         )
         text = (r.choices[0].message.content or "").strip()
         return True, f"Key works. Model replied {text[:20]!r}."
-    except Exception as e:  # noqa: BLE001 - surface the provider's message
+    except Exception as e:
         name = type(e).__name__
         msg = str(e)
-        for scrub in ("api_key", "Authorization"):
-            if scrub.lower() in msg.lower() and "Bearer" in msg:
-                msg = "the key was rejected"
+        if "Bearer" in msg and "auth" in msg.lower():
+            msg = "the key was rejected"
         return False, f"{name}: {msg[:200]}"
