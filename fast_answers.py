@@ -282,10 +282,10 @@ def respond(message: str, history: list[dict] | None = None,
             f"{DISCLAIMER}",
         )
 
-    # Missing a fact: ask exactly one, in the fewest words.
-    if not carrier:
-        warm = ""
-        if not lead and any(w in text.lower() for w in UNWELL):
+     # Not a hospital lookup: hand it to the model, which answers from the
+    # prompt instead of replaying a question or the previous hospital list.
+    if is_not_a_lookup(text, history):
+        return Reply("model", reason="not a lookup — answer from the prompt")
             warm = SYMPATHY + " "
         return Reply("ask", f"{lead}{warm}Which insurer is on your card?")
     if not class_level:
