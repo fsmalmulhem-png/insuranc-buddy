@@ -87,8 +87,20 @@ def llm_reply(messages, carrier_file):
                    "The user's insurer is known. Use the tools to look up their city "
                    "and class. Never name any hospital these files do not list.\n\n" + body)
     else:
-        system += ("\n\n## NO PROVIDER LIST YET\nYou do not yet know their insurer. "
-                   "Ask which insurer is on their card. Name no hospital.")
+        # The message may not be a lookup at all. Asking for an insurer on every
+        # turn is what made the advisor look deaf to anything else.
+        system += ("\n\n## NO PROVIDER LIST YET\n"
+                   "You do not yet have the user's insurer, so name no hospital.\n"
+                   "First decide what the message is:\n"
+                   "- If it is a health or emergency question, answer it, give 997 "
+                   "where it applies, and ask for insurer, class and city in ONE "
+                   "short line at the end. Never refuse a question just because it "
+                   "is not a lookup.\n"
+                   "- If it is a general question about insurance, classes, cover "
+                   "or the card, answer it plainly, then say what you would need "
+                   "to name a hospital.\n"
+                   "- Only if it is a hospital request with no facts do you ask "
+                   "which insurer is on their card.")
 
     provider = st.session_state.get("llm_provider", llm_config.DEFAULT_PROVIDER)
     typed = st.session_state.get("llm_key_typed")
