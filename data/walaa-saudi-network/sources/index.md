@@ -1,60 +1,47 @@
-# Walaa — sources checked
+# Walaa — sources
 
-All checks on **11 November 2026**.
+## 1. The provider list (primary)
 
-| # | URL | Result | Used for |
-|---|---|---|---|
-| 1 | `https://walaa.com/robots.txt` (direct) | 200 — Allow all; sitemap at `/sitemap.xml`; `/dashboard`, `/myprofile` disallowed | Routes and policy |
-| 2 | `https://walaa.com/sitemap.xml` | Returns the SPA shell, not XML | Proved the declared sitemap is not a real file |
-| 3 | `https://walaa.com/` | 200 — 1,277-byte React shell | Finding the bundle |
-| 4 | `https://walaa.com/assets/index-YQjw2Qpg.js` | 200 — **1,752,796 bytes** | **Primary source**: product map, 64 page modules, 25 routes, API config |
-| 5 | `https://walaa.com/assets/index-DhTD1zIC.js` | 200 — 7,180 bytes | Document Library chunk |
-| 6 | `https://apicoregcp.walaa.com/cms/` and probes | 404 | CMS exists but paths are runtime-built |
-| 7 | `walaa.com/document-library`, `/faq`, `/branch-locator` | 200 (SPA shell) | Confirmed routes resolve, content client-side |
-| 8 | Rendered via proxy | 248–723 bytes, shell only | Confirmed no server-rendered content |
+- **File:** `Walla_Updated_network.xlsx`
+- **Sheet:** `GLOBEMED SAUDI`
+- **Network name in file:** "Walaa GMS standard Full Network"
+- **Header date in file:** `07-08-2025` — ambiguous between 7 August and 8 July 2025.
+  Recorded as printed; not resolved.
+- **Held by:** the project team (shared 24 November 2026). Not a public URL.
+- **What it contains:** 1,657 provider rows, region + city per row, provider name, type,
+  owner, phone, district, and six tier columns.
 
-## Build-output method — recorded deliberately
+### Tier columns, as printed
 
-Walaa serves a Vite/React app whose HTML is a 1.2 KB shell. The `robots.txt` is real, but
-`/sitemap.xml` returns the app rather than a sitemap, so route enumeration from a sitemap was
-impossible.
-
-The route list therefore came from the **production bundle**, by extracting:
-
-- every `path:"…"` entry in the router,
-- every lazy `../pages/…` module reference (64 of them),
-- every bare string route (25),
-- the product-code → label maps,
-- the `VITE_*` configuration block.
-
-Anyone re-checking Walaa should read the bundle, not the HTML.
-
-## API surface found in the config block
-
-Recorded for completeness — **none of these publishes a provider list**:
-
-| Key | Value |
+| Column header in file | Tier used in `classes/` |
 |---|---|
-| `VITE_CONTENT_BASE_URI` | `https://apicoregcp.walaa.com/cms/` |
-| `VITE_JAVA_BASE_URL` | `https://apicoregcp.walaa.com/web/` |
-| `VITE_BACKEND_BASE_URL` | `…/web/claim` |
-| `VITE_BACKEND_COMMON_UTILITY_URL` | `…/web/common` |
-| `VITE_LOGIN_BASE_URL` | `…/web/login` |
+| `Walaa GMS NEW VIP` | VIP |
+| `Walaa GMS NEW A` | A |
+| `Walaa GMS NEW B` | B |
+| `Walaa GMS New C0222` | C |
+| `Walaa GMS NEW C0333` | C+ |
+| `Walaa GMS NEW 0333 PC` | C+ PC |
 
-No `…/network`, `…/provider` or `…/hospital` endpoint appears anywhere in the bundle.
+**These parenthetical codes are not defined anywhere in the file.** The mapping above is a
+reading of the labels, not something Walaa stated.
 
-**Note:** the config block also contains client-side keys (Firebase API keys, a Google Maps
-key, an AES constant). Those are public web values shipped to every browser, not secrets. They
-are **not** reproduced in this skill, to avoid copying credentials-shaped strings into a
-document the agent loads.
+### Cell values, as printed
 
-## Why no phone number is asserted
+| Value | Meaning recorded |
+|---|---|
+| `√` | tier accepted |
+| `-` | tier not covered |
+| `Emergency & Referral` | accepted for emergency and referral cases only — not a normal elective visit |
+| `cluse` | appears once in the B column; meaning unknown, treated as not covered |
 
-Walaa's contact numbers are fetched from the CMS at runtime and are not present in the bundle.
-The Contact page (`walaa.com/contact-walaa`) renders only a shell to a non-browser client, so
-the numbers could not be verified. The skill therefore points at the page and states plainly
-that no number is held, rather than guessing one.
+## 2. Walaa's public website (secondary)
 
-## Nothing from outside walaa.com informs this skill
+Surveyed 11 November 2026 — see `../network/README.md`. No public provider search and no
+class definitions. That remains true; this spreadsheet is not published by Walaa publicly.
 
-No third-party directory was consulted or adopted.
+## 3. Open question
+
+Walaa's site publishes **no** class definitions (no class A/B/A+ naming, no benefit table).
+The tiers here are Walaa's own GMS tier names. **How a GMS tier corresponds to the card class
+printed on a member's card is not published** — confirm with Walaa before telling a user
+"your class A is covered here".

@@ -2,26 +2,22 @@
 
 ## How many providers
 
-Unknown — not published.
+**1,657 provider rows across 138 cities in 13 regions**, from `Walla_Updated_network.xlsx`
+(Walaa GMS standard Full Network, header date 07-08-2025).
 
 ## Where the network data lives
 
-Nowhere. A **Branch Locator** exists but finds Walaa's offices, not hospitals.
-
-## Why it is not in this skill
-
-No provider page, no lookup, no file. No phone number could be read either, so the skill points at the Contact page.
+`classes/` — one Markdown file per city, each row listing the GMS tiers that provider
+accepts (VIP, A, B, C, C+, C+ PC).
 
 ## Can this skill name a hospital?
 
-**No.**
+**Yes**, for the 138 cities in `classes/`, at the tier named in the row.
 
----
+## What changed
 
-This file exists so every skill in the set has the same shape. The four skills with full
-hospital tables — **GIG**, **Amana**, **Bupa** and **Gulf General** — carry city files under
-`network/`. The rest cannot, because the underlying data was never published, is member-locked,
-or is out of date.
-
-Absence here is a finding, not a gap in the work. See `network/README.md` and
-`sources/index.md` for the evidence behind each statement.
+This folder previously recorded "Walaa publishes no medical provider list in any format" —
+that was true as of the 11 November 2026 website survey (`network/README.md`). The GMS
+network spreadsheet states otherwise for the GMS product, with class-level detail. Both
+statements are kept: the website still has no public lookup, but the network list exists
+and is held here.
