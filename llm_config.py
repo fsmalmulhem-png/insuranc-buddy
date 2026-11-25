@@ -1,13 +1,15 @@
 """LLM key and client handling.
 
 The key is read in this order:
-  1. what the user typed into the sidebar this session (st.session_state)
-  2. Streamlit secrets  (st.secrets["DEEPSEEK_API_KEY"])
-  3. environment variable DEEPSEEK_API_KEY
+  1. what the user typed into the sidebar this session (only if there is no
+     server-side key — a deployment sets one and the field never appears)
+  2. Streamlit secrets  (st.secrets["OPENAI_API_KEY"])
+  3. environment variable OPENAI_API_KEY
 
 It is never written to disk, never logged, and never put in a URL. Only the last
 four characters are ever displayed, so a screenshot cannot leak it.
 
+The provider is pinned by LLM_PROVIDER, so a deployment needs no sidebar at all.
 DeepSeek is OpenAI-compatible, so the same `openai` client works with a
 different base_url.
 """
@@ -36,7 +38,10 @@ PROVIDERS = {
     },
 }
 
-DEFAULT_PROVIDER = "deepseek"
+# The provider can be pinned from the environment, so a deployment needs no
+# sidebar at all. LLM_PROVIDER=openai + OPENAI_API_KEY is enough.
+_ENV_PROVIDER = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
+DEFAULT_PROVIDER = _ENV_PROVIDER if _ENV_PROVIDER in PROVIDERS else "deepseek"
 
 
 @dataclass
@@ -73,6 +78,16 @@ def resolve_key(provider: str, typed: str | None) -> tuple[str | None, str]:
     if val:
         return val, "env"
     return None, "none"
+
+
+def server_key_present() -> bool:
+    """True when the deployment already has a usable key.
+
+    The UI uses this to decide whether to ask the visitor for one at all.
+    """
+    provider = DEFAULT_PROVIDER
+    key, _ = resolve_key(provider, None)
+    return bool(key)
 
 
 def status(provider: str, typed: str | None = None) -> KeyStatus:
@@ -113,7 +128,7 @@ def build_client(provider: str, typed: str | None = None):
         )
     spec = PROVIDERS[provider]
     return OpenAI(
-        api_key=key,
+        [REDACTED CREDENTIAL]
         base_url=os.environ.get("LLM_BASE_URL") or spec["base_url"],
         timeout=30.0,
         max_retries=1,
