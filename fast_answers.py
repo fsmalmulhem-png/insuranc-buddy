@@ -28,7 +28,6 @@ CITIES = [
 ]
 CITY_NORMAL = {
     "mecca": "makkah", "medina": "madinah",
-    # The city files are named `al-khobar.md`; normalise every spelling to it.
     "khobar": "al-khobar", "al khobar": "al-khobar",
     "alkhobar": "al-khobar", "khubar": "al-khobar",
     "al khubar": "al-khobar", "al-khubar": "al-khobar",
@@ -48,14 +47,12 @@ UNWELL = [
 ]
 
 SYMPATHY = "I am sorry you are feeling unwell."
-CLINIC_WORDS = ["hospital", "clinic", "centre", "center", "polyclinic"]
-
 DISCLAIMER = "Coverage changes; confirm before you travel."
 
 
 @dataclass
 class Reply:
-    kind: str            # answer | ask | model
+    kind: str
     text: str = ""
     reason: str = ""
 
@@ -83,13 +80,15 @@ def find_class(text: str) -> str | None:
     m = re.search(r"\b([A-E])(\+)\b", t)
     if m:
         return m.group(1) + m.group(2)
-    # A one-word answer to "What class is printed on it - A or B?".
     if re.fullmatch(r"[A-E]\+?", t.rstrip(".!")):
         return t.rstrip(".!")
     return None
+
+
 def is_emergency(text: str) -> bool:
     t = text.lower()
     return any(w in t for w in EMERGENCY)
+
 
 def wants_emergency_care(text: str) -> bool:
     t = text.lower()
@@ -102,9 +101,9 @@ def wants_emergency_care(text: str) -> bool:
 # city. Everything else is not a lookup and must not be answered with a
 # request for facts.
 #
-# Before this existed, every message that was not a lookup fell through to
-# the gap-filling block and got "Which insurer is on your card?" — including
-# "Hi", "what is insurance?" and "I lost my card".
+# Before this existed, every message that was not a lookup fell through to the
+# gap-filling block and got "Which insurer is on your card?" — including "Hi",
+# "what is insurance?" and "I lost my card".
 
 LOOKUP_WORDS = [
     "hospital", "clinic", "centre", "center", "polyclinic", "doctor",
@@ -196,12 +195,6 @@ def _label(carrier: str) -> str:
 
 
 def _fmt(h) -> str:
-    """One provider per line, short enough that four fit inside the limit.
-
-    A row may name nine tiers; printing all of them triples the length of the
-    answer and pushes it past the 70-word cap, so only the fact that the
-    provider is in the network is shown.
-    """
     bits = [h.name]
     if h.phone:
         bits.append(h.phone)
@@ -217,7 +210,6 @@ def respond(message: str, history: list[dict] | None = None,
     if not text:
         return Reply("ask", "Which insurer is on your card?")
 
-    # Carry forward facts already given earlier in the conversation.
     if not carrier:
         carrier = business_tools.find_carrier(text)
     if not carrier:
@@ -247,7 +239,6 @@ def respond(message: str, history: list[dict] | None = None,
     lead = ("If this is an emergency, call 997 now — do not wait for me.\n\n"
             if emergency else "")
 
-    # A refusal we can already justify beats any model call.
     if carrier:
         summary = business_tools.carrier_summary(carrier)
         if not summary["publishes_provider_list"]:
@@ -262,7 +253,6 @@ def respond(message: str, history: list[dict] | None = None,
                 f"{DISCLAIMER}",
             )
 
-    # Everything we need: answer from the table, instantly.
     if carrier and city and class_level:
         res = business_tools.search_hospitals(carrier, city, class_level)
         name = _label(carrier)
@@ -282,10 +272,15 @@ def respond(message: str, history: list[dict] | None = None,
             f"{DISCLAIMER}",
         )
 
-     # Not a hospital lookup: hand it to the model, which answers from the
+    # Not a hospital lookup: hand it to the model, which answers from the
     # prompt instead of replaying a question or the previous hospital list.
     if is_not_a_lookup(text, history):
         return Reply("model", reason="not a lookup — answer from the prompt")
+
+    # Missing a fact: ask exactly one, in the fewest words.
+    if not carrier:
+        warm = ""
+        if not lead and any(w in text.lower() for w in UNWELL):
             warm = SYMPATHY + " "
         return Reply("ask", f"{lead}{warm}Which insurer is on your card?")
     if not class_level:
