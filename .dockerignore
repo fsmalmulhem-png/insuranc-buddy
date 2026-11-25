@@ -6,4 +6,3 @@ __pycache__/
 *.zip
 .streamlit/secrets.toml
 README.md
-test_*.py
