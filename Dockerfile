@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir -r requirements-wkala.txt
 # Backend + tools
 COPY backend.py business_tools.py ./
 # UI + prompt
-COPY app.py prompt.txt test_app.py test_integration.py test_e2e_paid.py ./
+COPY app.py prompt.txt llm_config.py fast_answers.py business_tools.py ./
+
 # Carrier data (SKILL.md guidance and the published per-city tables)
 COPY data/ ./data/
 
