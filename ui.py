@@ -223,3 +223,9 @@ def sidebar_block() -> str:
     return ('<div class="sb-head">Model key</div>'
             '<div class="sb-note">Held in this browser session only. '
             'Never written to disk and never logged.</div>')
+
+
+def sidebar_ready() -> str:
+    return ('<div class="sb-head">Ready</div>'
+            '<div class="sb-note">The model key is configured on the server. '
+            'Nothing to enter here.</div>')
