@@ -1,15 +1,4 @@
-"""Fast answer path for Insurance Buddy.
-
-Most questions are answered from the carrier tables alone — no model call, no
-network round trip. This module turns a user message into either:
-
-  ("answer", text)      a finished reply, served in single-digit milliseconds
-  ("ask", text)         one short question, because a fact is still missing
-  ("model", ...)        only when the tables genuinely cannot settle it
-
-The model is the last resort, not the first step. Measured local lookup:
-~0.04-7 ms against ~1-2 s for a model call.
-"""
+"""Fast answer path for Insurance Buddy."""
 
 from __future__ import annotations
 
@@ -95,16 +84,6 @@ def wants_emergency_care(text: str) -> bool:
     return "emergency" in t or "urgent" in t
 
 
-# --- Is this message a hospital lookup at all? ------------------------------
-#
-# The advisor answers one question: which hospital, given insurer + class +
-# city. Everything else is not a lookup and must not be answered with a
-# request for facts.
-#
-# Before this existed, every message that was not a lookup fell through to the
-# gap-filling block and got "Which insurer is on your card?" — including "Hi",
-# "what is insurance?" and "I lost my card".
-
 LOOKUP_WORDS = [
     "hospital", "clinic", "centre", "center", "polyclinic", "doctor",
     "specialist", "dentist", "optical", "pharmacy",
@@ -122,6 +101,12 @@ SMALL_TALK = [
     "good evening", "who are you", "what can you do", "help",
 ]
 
+QUESTION_SHAPES = (
+    "what is ", "what's ", "what does ", "what do ", "what are ",
+    "meaning of", "explain ", "how does ", "how do ", "why is ",
+    "why do ", "tell me about",
+)
+
 
 def _asked_for_a_fact(text: str) -> bool:
     """Did the assistant's previous reply ask for insurer / class / city?"""
@@ -131,11 +116,25 @@ def _asked_for_a_fact(text: str) -> bool:
 
 
 def is_not_a_lookup(message: str, history: list[dict] | None = None) -> bool:
+    """True when the message is not a hospital lookup."""
     text = (message or "").strip()
     if not text:
         return True
     t = text.lower()
 
+    # A general question is never a lookup, even when it mentions a class:
+    # "what is class A" is a question to answer, not a fact to collect.
+    if any(t.startswith(sh) or (" " + sh) in t for sh in QUESTION_SHAPES):
+        return True
+
+    # A greeting overrides the check below, otherwise one asked question makes
+    # every later message look like the answer to it.
+    bare = t.strip().strip(".!,")
+    if any(bare == w or t.startswith(w + " ") or t.startswith(w + ",")
+           for w in SMALL_TALK):
+        return True
+
+    # A bare answer to the question the advisor just asked is a lookup step.
     last_assistant = ""
     for m in reversed(history or []):
         if m.get("role") == "assistant":
@@ -147,15 +146,9 @@ def is_not_a_lookup(message: str, history: list[dict] | None = None) -> bool:
     if business_tools.find_carrier(text) or find_city(text) or find_class(text):
         return False
 
-    if any(w in t for w in SMALL_TALK):
+    if any(w in t for w in SICK_WORDS):
         return True
-
-    feels_sick = any(w in t for w in SICK_WORDS)
-    wants_lookup = any(w in t for w in LOOKUP_WORDS)
-
-    if feels_sick:
-        return True
-    if wants_lookup:
+    if any(w in t for w in LOOKUP_WORDS):
         return False
 
     return True
@@ -272,12 +265,9 @@ def respond(message: str, history: list[dict] | None = None,
             f"{DISCLAIMER}",
         )
 
-    # Not a hospital lookup: hand it to the model, which answers from the
-    # prompt instead of replaying a question or the previous hospital list.
     if is_not_a_lookup(text, history):
         return Reply("model", reason="not a lookup — answer from the prompt")
 
-    # Missing a fact: ask exactly one, in the fewest words.
     if not carrier:
         warm = ""
         if not lead and any(w in text.lower() for w in UNWELL):
