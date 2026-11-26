@@ -214,9 +214,26 @@ def turn(who: str, text: str, rendered: str | None = None) -> str:
     if who == "you":
         return (f'<div class="ib-turn"><div class="ib-who">You</div>'
                 f'<div class="ib-you">{text}</div></div>')
-    body = rendered if rendered is not None else text.replace("\n", "<br>")
-    return (f'<div class="ib-turn"><div class="ib-who">Insurance Buddy</div>'
+    body = rendered if rendered is not None else linkify_answer(text).replace("\n", "<br>")
+  return (f'<div class="ib-turn"><div class="ib-who">Insurance Buddy</div>'
             f'<div class="ib-bot">{body}</div></div>')
+MAP_LINK_STYLE = (
+    "color:#1F4E5F;text-decoration:none;"
+    "border-bottom:1px solid #C9D6D9;"
+)
+
+
+def linkify_answer(text: str) -> str:
+    """Turn bare URLs in the model's prose into clickable links."""
+    import re as _re
+
+    def repl(match):
+        url = match.group(0).rstrip(".,;)")
+        return (f'<a href="{url}" target="_blank" rel="noopener" '
+                f'style="{MAP_LINK_STYLE}">Open in Maps</a>')
+
+    return _re.sub(r"https?://[^\s<)\]\"']+", repl, text)
+
 
 
 def sidebar_block() -> str:
