@@ -286,7 +286,7 @@ if text := st.chat_input("Type your message…"):
     if tr is None and facts["insurer"] and facts["city"] and facts["class"]:
         tr = tracer.build_trace(facts["insurer"], facts["city"], facts["class"])
 
-    rendered = out.replace("\n", "<br>")
+    rendered = ui.linkify_answer(out).replace("\n", "<br>")
     if tr is not None:
         rendered = ui.tree(tr) + rendered
 
