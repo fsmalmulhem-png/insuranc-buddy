@@ -214,8 +214,11 @@ def turn(who: str, text: str, rendered: str | None = None) -> str:
     if who == "you":
         return (f'<div class="ib-turn"><div class="ib-who">You</div>'
                 f'<div class="ib-you">{text}</div></div>')
-    body = rendered if rendered is not None else linkify_answer(text).replace("\n", "<br>")
-  return (f'<div class="ib-turn"><div class="ib-who">Insurance Buddy</div>'
+    if rendered is not None:
+        body = rendered
+    else:
+        body = linkify_answer(text).replace("\n", "<br>")
+    return (f'<div class="ib-turn"><div class="ib-who">Insurance Buddy</div>'
             f'<div class="ib-bot">{body}</div></div>')
 MAP_LINK_STYLE = (
     "color:#1F4E5F;text-decoration:none;"
