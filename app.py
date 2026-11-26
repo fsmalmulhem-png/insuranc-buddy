@@ -141,8 +141,15 @@ def run_tool(name: str, args: dict) -> str:
                                    "hospitals": []})
             return json.dumps({
                 "may_name": True,
-                "hospitals": [{"name": h.name, "phone": h.phone}
-                              for h in res.hospitals],
+                "hospitals": [
+                    {
+                        "name": h.name,
+                        "phone": h.phone,
+                        "address": h.address,
+                        "map_link": maps.maps_url(h.name, h.address, res.city),
+                    }
+                    for h in res.hospitals
+                ],
             })
         if name == "carrier_summary":
             return json.dumps(
