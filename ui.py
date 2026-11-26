@@ -227,8 +227,20 @@ MAP_LINK_STYLE = (
 
 
 def linkify_answer(text: str) -> str:
-    """Turn bare URLs in the model's prose into clickable links."""
+    """Turn bare URLs in the model's prose into clickable links.
+
+    The model writes the URL on its own line under each hospital. We keep the
+    city's name as the link text rather than a generic "Open in Maps", so the
+    reader sees which hospital each link belongs to.
+    """
     import re as _re
+
+    def repl(match):
+        url = match.group(0).rstrip(".,;)")
+        return (f'<a href="{url}" target="_blank" rel="noopener" '
+                f'style="{MAP_LINK_STYLE}">Open in Maps &#8599;</a>')
+
+    return _re.sub(r"https?://[^\s<>\"']+", repl, text)
 
     def repl(match):
         url = match.group(0).rstrip(".,;)")
