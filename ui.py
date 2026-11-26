@@ -238,8 +238,7 @@ def linkify_answer(text: str) -> str:
     def repl(match):
         url = match.group(0).rstrip(".,;)")
         return (f'<a href="{url}" target="_blank" rel="noopener" '
-                f'style="{MAP_LINK_STYLE}">Open in Maps &#8599;</a>')
-
+                f'style="{MAP_LINK_STYLE}">Directions &#8599;</a>')
     return _re.sub(r"https?://[^\s<>\"']+", repl, text)
 
     def repl(match):
