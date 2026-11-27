@@ -229,6 +229,32 @@ with st.sidebar:
         if "llm_check" in st.session_state:
             ok, msg = st.session_state["llm_check"]
             (st.success if ok else st.error)(msg)
+    # Which insurers the advisor can actually answer for.
+    _labels = {
+        "gig-gulf-insurance-saudi-network": "GIG",
+        "bupa-saudi-network": "Bupa",
+        "amana-coop-saudi-network": "Amana",
+        "medgulf-saudi-network": "MedGulf",
+        "walaa-saudi-network": "Walaa",
+        "ggi-gulf-general-saudi-network": "Gulf General",
+        "tawuniya-saudi-network": "Tawuniya",
+    }
+
+    @st.cache_data
+    def _covered():
+        rows, missing = [], 0
+        for dirname in set(business_tools.CARRIERS.values()):
+            cities = business_tools.published_cities(dirname)
+            if cities:
+                rows.append((_labels.get(dirname, dirname), len(cities)))
+            else:
+                missing += 1
+        rows.sort(key=lambda r: -r[1])
+        return rows, missing
+
+    _rows, _missing = _covered()
+    st.markdown("<div style='height:.9rem'></div>", unsafe_allow_html=True)
+    st.markdown(ui.covered_panel(_rows, _missing), unsafe_allow_html=True)
 
     st.markdown("<div style='height:.6rem'></div>", unsafe_allow_html=True)
     if st.button("Start again", use_container_width=True):
