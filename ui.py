@@ -249,6 +249,26 @@ def linkify_answer(text: str) -> str:
     return _re.sub(r"https?://[^\s<)\]\"']+", repl, text)
 
 
+def covered_panel(covered: list[tuple[str, int]], missing: int) -> str:
+    """The insurers whose tables the advisor can actually read.
+
+    `covered` is [(label, city_count), ...]; `missing` is how many carriers
+    publish nothing usable. The missing count is shown on purpose: hiding it
+    would misrepresent what the advisor can answer.
+    """
+    rows = "".join(
+        f'<div class="sb-row"><span class="sb-name">{name}</span>'
+        f'<span class="sb-count">{n}</span></div>'
+        for name, n in covered
+    )
+    return (
+        '<div class="sb-head">Covered insurers</div>'
+        '<div class="sb-note">These publish a class-level provider table.</div>'
+        f'<div class="sb-list">{rows}</div>'
+        f'<div class="sb-note sb-missing">{missing} others publish nothing usable '
+        f'by class, and the advisor says so rather than guessing.</div>'
+    )
+
 
 def sidebar_block() -> str:
     return ('<div class="sb-head">Model key</div>'
