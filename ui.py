@@ -167,6 +167,12 @@ section[data-testid="stSidebar"] *{ color:var(--ink) !important; }
   color:var(--ink); margin-bottom:.15rem;
 }
 .sb-note{ font-size:.75rem; color:var(--ink-3); line-height:1.5; margin-bottom:.9rem; }
+.sb-list{ margin:.1rem 0 .8rem; }
+.sb-row{ display:flex; justify-content:space-between; align-items:baseline;
+         padding:.2rem 0; border-bottom:1px solid var(--line); }
+.sb-name{ font-size:.8rem; color:var(--ink); font-weight:500; }
+.sb-count{ font-family:'JetBrains Mono', monospace; font-size:.7rem; color:var(--ink-3); }
+.sb-missing{ margin-top:.2rem; font-style:italic; }
 </style>
 """
 
